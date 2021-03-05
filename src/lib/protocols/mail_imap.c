@@ -67,7 +67,7 @@ void ndpi_search_mail_imap_tcp(struct ndpi_detection_module_struct *ndpi_struct,
       saw_command = 1;
     } else {
 
-      if(flow->l4.tcp.mail_imap_stage < 4) {
+      if(flow->l4.tcp.mail_imap_stage < 6) {
 	// search for the first space character (end of the tag)
 	while (i < 20 && i < packet->payload_packet_len) {
 	  if(i > 0 && packet->payload[i] == ' ') {

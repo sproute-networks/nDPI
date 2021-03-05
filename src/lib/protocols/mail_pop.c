@@ -132,6 +132,7 @@ static int ndpi_int_mail_pop_check_for_client_commands(struct ndpi_detection_mod
 	       && (packet->payload[2] == 'L' || packet->payload[2] == 'l')
 	       && (packet->payload[3] == 'S' || packet->payload[3] == 's')) {
       flow->l4.tcp.pop_command_bitmask |= POP_BIT_STLS;
+	  ndpi_set_detected_protocol(ndpi_struct, flow, NDPI_PROTOCOL_MAIL_POPS, NDPI_PROTOCOL_UNKNOWN);
       return 1;
     }
   }
