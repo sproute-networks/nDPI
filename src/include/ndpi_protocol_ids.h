@@ -283,7 +283,11 @@ typedef enum {
   NDPI_PROTOCOL_ANYDESK               = 252, /* Toni Uhlig <matzeton@googlemail.com> */
   NDPI_PROTOCOL_SOAP                  = 253, /* Toni Uhlig <matzeton@googlemail.com> */
   NDPI_PROTOCOL_APPLE_SIRI            = 254, /* Zied Aouini <aouinizied@gmail.com> */
-
+  NDPI_PROTOCOL_CHROME_UPDATE         = 255,
+  NDPI_PROTOCOL_IOS_UPDATE            = 256,
+  NDPI_PROTOCOL_FIREFOX_UPDATE        = 257,
+  NDPI_PROTOCOL_SYMANTEC_UPDATE       = 258,
+  NDPI_PROTOCOL_ADOBE_UPDATE          = 259,
 
 #ifdef CUSTOM_NDPI_PROTOCOLS
 #include "../../../nDPI-custom/custom_ndpi_protocol_ids.h"

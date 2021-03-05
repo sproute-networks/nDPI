@@ -9419,6 +9419,20 @@ static ndpi_protocol_match host_match[] =
    { "disneyplus.com.ssl.sc.omtrdc.net",       "DisneyPlus",        NDPI_PROTOCOL_DISNEYPLUS, NDPI_PROTOCOL_CATEGORY_STREAMING, NDPI_PROTOCOL_FUN },
    { "search-api-disney.bamgrid.com",          "DisneyPlus",        NDPI_PROTOCOL_DISNEYPLUS, NDPI_PROTOCOL_CATEGORY_STREAMING, NDPI_PROTOCOL_FUN },
 
+   /*
+      SW updates
+    */
+
+   { "swcdn.apple.com",                 "iOSUpdate",         NDPI_PROTOCOL_IOS_UPDATE, NDPI_PROTOCOL_CATEGORY_SW_UPDATE, NDPI_PROTOCOL_ACCEPTABLE },
+   { "swdownload.apple.com",          	"iOSUpdate",         NDPI_PROTOCOL_IOS_UPDATE, NDPI_PROTOCOL_CATEGORY_SW_UPDATE, NDPI_PROTOCOL_ACCEPTABLE },
+   { "swquery.apple.com",               "iOSUpdate",         NDPI_PROTOCOL_IOS_UPDATE, NDPI_PROTOCOL_CATEGORY_SW_UPDATE, NDPI_PROTOCOL_ACCEPTABLE },
+   { "swscan.apple.com",                "iOSUpdate",         NDPI_PROTOCOL_IOS_UPDATE, NDPI_PROTOCOL_CATEGORY_SW_UPDATE, NDPI_PROTOCOL_ACCEPTABLE },
+   { ".mozilla.net",                    "FirefoxUpdate",     NDPI_PROTOCOL_FIREFOX_UPDATE, NDPI_PROTOCOL_CATEGORY_SW_UPDATE, NDPI_PROTOCOL_ACCEPTABLE },
+   { "dl.google.com",                   "ChromeUpdate",      NDPI_PROTOCOL_CHROME_UPDATE, NDPI_PROTOCOL_CATEGORY_SW_UPDATE, NDPI_PROTOCOL_ACCEPTABLE },
+   { ".symantecliveupdate.com",         "SymantecUpdate",    NDPI_PROTOCOL_SYMANTEC_UPDATE, NDPI_PROTOCOL_CATEGORY_SW_UPDATE, NDPI_PROTOCOL_ACCEPTABLE },
+   { "get.adobe.com",                   "AdobeUpdate",       NDPI_PROTOCOL_ADOBE_UPDATE, NDPI_PROTOCOL_CATEGORY_SW_UPDATE, NDPI_PROTOCOL_ACCEPTABLE },
+
+
    { NULL, NULL, NDPI_PROTOCOL_UNKNOWN, NDPI_PROTOCOL_CATEGORY_UNSPECIFIED, NDPI_PROTOCOL_SAFE }
   };
 
