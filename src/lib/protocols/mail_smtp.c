@@ -45,6 +45,7 @@
 #define SMTP_BIT_RSET		0x1000
 #define SMTP_BIT_TlRM		0x2000
 
+#define SMTP_BIT_220_RDY_STARTTLS   0x4000 /*svc ready seen from server for starttls*/
 /* #define SMTP_DEBUG 1 */
 
 static void ndpi_int_mail_smtp_add_connection(struct ndpi_detection_module_struct
@@ -55,6 +56,12 @@ static void ndpi_int_mail_smtp_add_connection(struct ndpi_detection_module_struc
   
   ndpi_set_detected_protocol(ndpi_struct, flow,
 			     NDPI_PROTOCOL_MAIL_SMTP, NDPI_PROTOCOL_UNKNOWN);
+}
+
+static void ndpi_int_mail_smtps_add_connection(struct ndpi_detection_module_struct
+					      *ndpi_struct, struct ndpi_flow_struct *flow)
+{
+  ndpi_set_detected_protocol(ndpi_struct, flow, NDPI_PROTOCOL_MAIL_SMTPS, NDPI_PROTOCOL_UNKNOWN);
 }
 
 /* **************************************** */
@@ -79,9 +86,14 @@ void ndpi_search_mail_smtp_tcp(struct ndpi_detection_module_struct *ndpi_struct,
     NDPI_PARSE_PACKET_LINE_INFO(ndpi_struct, flow, packet);
 
     for(a = 0; a < packet->parsed_lines; a++) {
+
       // expected server responses
-      if(packet->line[a].len >= 3) {
-	if(memcmp(packet->line[a].ptr, "220", 3) == 0) {
+      if (packet->line[a].len >= 3) {
+	if (memcmp(packet->line[a].ptr, "220", 3) == 0) {
+	  if (flow->l4.tcp.smtp_command_bitmask&SMTP_BIT_STARTTLS) {
+			NDPI_LOG_DBG(ndpi_struct, "service_ready(220) for starttls\n");
+	    flow->l4.tcp.smtp_command_bitmask |= SMTP_BIT_220_RDY_STARTTLS;
+	  }
 	  flow->l4.tcp.smtp_command_bitmask |= SMTP_BIT_220;
 	} else if(memcmp(packet->line[a].ptr, "250", 3) == 0) {
 	  flow->l4.tcp.smtp_command_bitmask |= SMTP_BIT_250;
@@ -234,17 +246,30 @@ void ndpi_search_mail_smtp_tcp(struct ndpi_detection_module_struct *ndpi_struct,
     NDPI_LOG_DBG2(ndpi_struct, "seen smtp commands and responses: %u\n",
 		  bit_count);
 
-    if(bit_count >= 3) {
+    if(bit_count >= 4) {
       NDPI_LOG_INFO(ndpi_struct, "mail smtp identified\n");
-
 #ifdef SMTP_DEBUG
       printf("%s() [bit_count: %u][%s]\n", __FUNCTION__,
 	     bit_count, flow->protos.ftp_imap_pop_smtp.password);
 #endif
-
-      ndpi_int_mail_smtp_add_connection(ndpi_struct, flow);
-      smtpInitExtraPacketProcessing(flow);      
-      return;
+	  if (!(flow->l4.tcp.smtp_command_bitmask&SMTP_BIT_STARTTLS)) {
+				NDPI_LOG_DBG2(ndpi_struct, "not seen start TLS so far declare it as SMTP\n");
+				smtpInitExtraPacketProcessing(flow);
+				ndpi_int_mail_smtp_add_connection(ndpi_struct, flow);
+				return;
+	  } else {
+		if (flow->l4.tcp.smtp_command_bitmask&SMTP_BIT_MAIL) {
+				/* seen mail that means client is going ahead with non TLS */
+			NDPI_LOG_DBG2(ndpi_struct, "seen mail in clear declare SMTP\n");
+			ndpi_int_mail_smtp_add_connection(ndpi_struct, flow);
+			return;
+		} else if (flow->l4.tcp.smtp_command_bitmask&SMTP_BIT_220_RDY_STARTTLS) {
+			NDPI_LOG_DBG2(ndpi_struct,
+				"server ready (220) response for STARTTLS declare as SMTPS\n");
+			ndpi_int_mail_smtps_add_connection(ndpi_struct, flow);
+			return;
+		}
+	  }
     }
 
     if(bit_count >= 1 && flow->packet_counter < 12) {
@@ -292,7 +317,7 @@ static void smtpInitExtraPacketProcessing(struct ndpi_flow_struct *flow) {
 #endif
   
   flow->check_extra_packets = 1;
-  /* At most 7 packets should almost always be enough */
+  /* At most 12 packets should almost always be enough */
   flow->max_extra_packets_to_check = 12;
   flow->extra_packets_func = ndpi_extra_search_mail_smtp_tcp;
 }
