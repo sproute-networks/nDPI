@@ -246,6 +246,8 @@ void ndpi_search_mail_smtp_tcp(struct ndpi_detection_module_struct *ndpi_struct,
     NDPI_LOG_DBG2(ndpi_struct, "seen smtp commands and responses: %u\n",
 		  bit_count);
 
+    // Previously with bit count >=3 it was marking as smtp and exiting..
+	// so we need to wait for it either see startls or mail to conclusively tell. So we need another pkt
     if(bit_count >= 4) {
       NDPI_LOG_INFO(ndpi_struct, "mail smtp identified\n");
 #ifdef SMTP_DEBUG
